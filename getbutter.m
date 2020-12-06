@@ -14,7 +14,7 @@
 %
 %   Where x(n) is your input signal and y(n) is your output signal.
 %
-%   See also GETNOTCH, PLOTFILTER.
+%   See also GETNOTCH, PLOTFILTER, FILTER.
 function [alpha, beta] = getbutter(f0, dt, m)
     if nargin < 2
         dt = 1;

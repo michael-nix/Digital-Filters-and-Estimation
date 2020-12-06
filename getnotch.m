@@ -19,7 +19,7 @@
 %
 %   Where x(n) is your input signal and y(n) is your output signal.
 %
-%   See also GETBUTTER, PLOTFILTER.
+%   See also GETBUTTER, PLOTFILTER, FILTER.
 function [alpha, beta] = getnotch(f0, dt, m)
 
     if nargin < 2

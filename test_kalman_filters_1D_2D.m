@@ -1,5 +1,11 @@
-function fig = test_kalman_filters
+%   Simple example function that compares the results of estimating speed 
+%   using a Kalman filter with noisy speed measurements, versus estimating 
+%   speed using both noisy speed and acceleration measurements. 
+function fig = test_kalman_filters_1D_2D
 
+%%  First, a one-dimensional filter:
+%
+%   Create Noisy Data:
     t = linspace(0, 10, 1000);
     dt = t(2) - t(1);
 
@@ -8,11 +14,12 @@ function fig = test_kalman_filters
     za = [za, -za];
     zv = cumtrapz(za) * dt;
 
+    t = linspace(0, t(end) * 2, length(t) * 2);
+    
     za = za + randn(size(za)) * 1;
     zv = zv + randn(size(zv)) * 2;
 
-    t = linspace(0, t(end) * 2, length(t) * 2);
-
+%   Initialize Filter:
     xe = zeros(1, 1);
     Pe = zeros(1, 1);
 
@@ -25,6 +32,8 @@ function fig = test_kalman_filters
 
     x = zeros(1, length(t));
     z = zv;
+    
+%   Filter Data:
     for i = 1:length(t)
 
         [xe, Pe] = kalman_filter(xe, Pe, z(:,i));
@@ -39,6 +48,9 @@ function fig = test_kalman_filters
     title('One-Dimensional Filter');
     axis([0 20 -5 15]);
     
+%%  Second, a two-dimensional filter:
+% 
+%   Initialize Filter:
     xe = zeros(2, 1);
     Pe = zeros(2, 2);
     
@@ -52,6 +64,7 @@ function fig = test_kalman_filters
     x = zeros(2, length(t));
     z = [zv; za];
     
+%   Filter Data:
     for i = 1:length(t)
         
         [xe, Pe] = kalman_filter(xe, Pe, z(:,i));
@@ -73,13 +86,24 @@ function fig = test_kalman_filters
     ylabel(ax, 'speed (m/s)');
     xlabel(ax, 'time (s)');
 
-        function [x0, P0] = kalman_filter(x0, P0, z)
-            xp = F * x0;
-            Pp = F * P0 * F.' + Q;
-
+        %% KALMAN_FILTER  Standard single iteration of a Kalman filter. 
+        %  
+        %    [xe, Pe] = KALMAN_FILTER(xe, Pe, z) takes in previous state 
+        %    estimates, xe, their covariances, Pe, and current measurements 
+        %    to return updated current estimates and covariances. 
+        % 
+        %    Other parameters F, Q, H, and R are assumed to be global 
+        %    variables for this example implementation. 
+        function [xe, Pe] = kalman_filter(xe, Pe, z)
+        %   1) Predict:
+            xp = F * xe;
+            Pp = F * Pe * F.' + Q;
+            
+        %   2) Weigh:  
             K = Pp * H.' * ((H * Pp * H.' + R) \ eye(size(R)));
             
-            x0 = xp + K * (z - H * xp);
-            P0 = (eye(size(Pp)) - K * H) * Pp * (eye(size(Pp)) - K * H).' + K * R * K.';
+        %   3) Estimate:  
+            xe = xp + K * (z - H * xp);
+            Pe = (eye(size(Pp)) - K * H) * Pp * (eye(size(Pp)) - K * H).' + K * R * K.';
         end
 end

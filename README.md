@@ -1,4 +1,4 @@
-# Digital-Filters-and-Estimation
+# Digital Filters and Estimation
 Elementary investigation into some basic filtering and estimation techniques.
 
  - Notch and Butterworth filters,

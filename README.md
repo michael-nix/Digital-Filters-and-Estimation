@@ -5,5 +5,5 @@ Drastically slowing things down, you can still get half-decent results when desi
 
  - Notch and Butterworth filters,
  - And then some Kalman filter for optimal estimation,
- - And then some Extended Kalman fitlers for nonlinear stuff,
+ - And then some Extended Kalman filters for nonlinear stuff,
  - Maybe particle filters because they're cool; I wonder if one can make them faster.

@@ -1,3 +1,3 @@
-#Using and Designing Kalman Filters
+# Using and Designing Kalman Filters
 
 Without re-deriving the theory of how Kalman filters came to be, we review what they are and how to go about using them.  Walking through three very basic theoretical examples, we show how state estimates are generally calculated from predictions and measurements, opening up a straightforward way of thinking about things that can make future designs easier to reason about.  Following through a very basic example, we end with additional discussion of design considerations for other things like time-varying filters and extended filters for nonlinear systems. 

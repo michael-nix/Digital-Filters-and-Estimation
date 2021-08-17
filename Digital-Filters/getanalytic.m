@@ -17,10 +17,19 @@ if isrow(y)
     y = y.';
 end
 
-Y = fft(y);
-n = round(length(Y) / 2);
+isodd = mod(length(y), 2) > 0;
+if isodd
+    Y = fft([y; y(end)]);
+else
+    Y = fft(y);
+end
+n = ceil(length(Y) / 2);
 
-ya = y + ifft([-Y(1:n); Y(n+1:end)]);
+ya = conj(ifft([Y(1); 2*Y(2:n-1); Y(n); zeros(n, 1)]));
+
+if isodd
+    ya = ya(1:end-1);
+end
 
 if nargout > 1
     phi = unwrap(angle(ya)) / 2 / pi;

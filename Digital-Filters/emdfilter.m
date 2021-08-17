@@ -56,9 +56,9 @@ y0 = [y(end:-1:2); y; y(end-1:-1:1)];
 
 f = zeros(length(x), 1);
 for i = nimf:-1:1
-    [~, phi] = getanalytic(imf(:, i), x0);
+    [~, fi] = getanalytic(imf(:, i), x0);
     
-    maxfreq = mean(abs(phi(idxROI)));    
+    maxfreq = mean(abs(fi(idxROI)));    
     if (maxfreq > fup)
         break;
     elseif (maxfreq < flo)
@@ -68,9 +68,9 @@ for i = nimf:-1:1
 end
 
 % do a quick check to see if the residual has useful signal:
-[~, phi] = getanalytic(res, x0);
+[~, fi] = getanalytic(res, x0);
 
-maxfreq = mean(abs(phi(idxROI)));
+maxfreq = mean(abs(fi(idxROI)));
 if (maxfreq < fup) && (maxfreq > flo)
     f = f + res(idxROI);
 end

@@ -2,6 +2,7 @@
 Elementary investigation into some basic filtering and estimation techniques.
 
  - Notch and Butterworth filters,
+ - Filters using Empirical Mode Decomposition & Intrinsic Mode Functions,
  - And then some Kalman filter for optimal estimation,
  - And then some Extended Kalman filters for nonlinear stuff,
- - Maybe particle filters because they're cool; I wonder if one can make them faster.
+ - Maybe unscented filters because they're cool; I wonder if one can make them faster.

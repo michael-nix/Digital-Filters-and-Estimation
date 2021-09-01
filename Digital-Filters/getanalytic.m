@@ -24,7 +24,7 @@ else
 end
 n = ceil(length(Y) / 2);
 
-ya = fft([Y(1); 2*Y(2:n-1); Y(n); zeros(n, 1)]);
+ya = ifft([Y(1); 2*Y(2:n-1); Y(n); zeros(n, 1)]);
 
 if isodd
     ya = ya(1:end-1);

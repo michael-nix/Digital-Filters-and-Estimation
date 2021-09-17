@@ -40,33 +40,33 @@ function [imf, r, nimf] = getimfs(y, x, maxnimf, idx)
         h = y;
         
         extrema = conv([1, -1], sign(diff(h))); 
-        idxu = extrema == -2; 
-        idxl = extrema == 2;
+        idxmax = extrema == -2; 
+        idxmin = extrema == 2;
         
-        maybemonotonic = (length(find(idxu, 3)) < 3) || (length(find(idxl, 3)) < 3);
+        maybemonotonic = (length(find(idxmax, 3)) < 3) || (length(find(idxmin, 3)) < 3);
         if maybemonotonic
             i = i - 1; %#ok<FXSET>
             break;
         end
         
-        upper = spline(x(idxu), h(idxu), x);
-        lower = spline(x(idxl), h(idxl), x);
+        upper = spline(x(idxmax), h(idxmax), x);
+        lower = spline(x(idxmin), h(idxmin), x);
 
         meanenv = (upper + lower) / 2;
         h = h - meanenv;
         
         for j = 1:100
             extrema = conv([1, -1], sign(diff(h)));
-            idxu = extrema == -2;
-            idxl = extrema == 2;
+            idxmax = extrema == -2;
+            idxmin = extrema == 2;
             
-            maybemonotonic = (length(find(idxu, 3)) < 3) || (length(find(idxl, 3)) < 3);
+            maybemonotonic = (length(find(idxmax, 3)) < 3) || (length(find(idxmin, 3)) < 3);
             if maybemonotonic
                 break;
             end
             
-            upper = spline(x(idxu), h(idxu), x);
-            lower = spline(x(idxl), h(idxl), x);
+            upper = spline(x(idxmax), h(idxmax), x);
+            lower = spline(x(idxmin), h(idxmin), x);
 
             meanenv = (upper + lower) / 2;
             

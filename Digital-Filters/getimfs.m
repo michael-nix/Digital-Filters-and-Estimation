@@ -38,9 +38,10 @@ function [imf, r, nimf] = getimfs(y, x, maxnimf, idx)
     imf = zeros(length(y), maxnimf);
     for i = 1:maxnimf
         h = y;
-
-        idxu = islocalmax(h);
-        idxl = islocalmin(h);
+        
+        extrema = conv([1, -1], sign(diff(h))); 
+        idxu = extrema == -2; 
+        idxl = extrema == 2;
         
         maybemonotonic = (length(find(idxu, 3)) < 3) || (length(find(idxl, 3)) < 3);
         if maybemonotonic
@@ -48,23 +49,24 @@ function [imf, r, nimf] = getimfs(y, x, maxnimf, idx)
             break;
         end
         
-        upper = interp1(x(idxu), h(idxu), x, 'spline');
-        lower = interp1(x(idxl), h(idxl), x, 'spline');
+        upper = spline(x(idxu), h(idxu), x);
+        lower = spline(x(idxl), h(idxl), x);
 
         meanenv = (upper + lower) / 2;
         h = h - meanenv;
         
         for j = 1:100
-            idxu = islocalmax(h);
-            idxl = islocalmin(h);
+            extrema = conv([1, -1], sign(diff(h)));
+            idxu = extrema == -2;
+            idxl = extrema == 2;
             
             maybemonotonic = (length(find(idxu, 3)) < 3) || (length(find(idxl, 3)) < 3);
             if maybemonotonic
                 break;
             end
             
-            upper = interp1(x(idxu), h(idxu), x, 'spline');
-            lower = interp1(x(idxl), h(idxl), x, 'spline');
+            upper = spline(x(idxu), h(idxu), x);
+            lower = spline(x(idxl), h(idxl), x);
 
             meanenv = (upper + lower) / 2;
             

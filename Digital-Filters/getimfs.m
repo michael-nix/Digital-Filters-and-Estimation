@@ -31,8 +31,8 @@ function [imf, r, nimf] = getimfs(y, x, maxnimf, idx)
     wasrow = false;
     if isrow(y)
         wasrow = true;
-        y = y.';
-        x = x.';
+        y = y(:);
+        x = x(:);
     end
 
     imf = zeros(length(y), maxnimf);

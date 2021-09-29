@@ -10,7 +10,7 @@ load EMDFilterData;
 [~, fi1] = getanalytic(y1, x1);
 [~, fi3] = getanalytic(y3, x3);
 [~, fi5] = getanalytic(y5, x5);
-edges = 0:0.125:(16-0.125);
+edges = 0:0.125:16;
 
 figure;
 histogram(abs(fi1(idx)), edges, 'Normalization', 'Probability'); hold on;
@@ -26,6 +26,6 @@ p5 = abs(fft(c(:,5))); p5 = p5(1:end/2); p5 = p5 / sum(p5);
 f0 = linspace(0, 16, length(x)/2).';
 
 figure; 
-figure; plot(f0, p1, f0, p3, f0, p5, 'LineWidth', 1.5); grid on;
+plot(f0, p1, f0, p3, f0, p5, 'LineWidth', 1.5); grid on;
 xlabel('Frequency (Hz)'); ylabel('Probability (%)');
 title('Fourier Transform Frequency Distributions of IMFs');

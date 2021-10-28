@@ -39,9 +39,9 @@ function [imf, r, nimf] = getimfs(y, x, maxnimf, idx)
     for i = 1:maxnimf
         h = y;
         
-        extrema = conv([1, -1], sign(diff(h))); 
-        idxmax = extrema == -2; 
-        idxmin = extrema == 2;
+        extrema = conv([-0.5, 0.5], sign(diff(h)));
+        idxmax = extrema == 1;
+        idxmin = extrema == -1;
         
         maybemonotonic = (length(find(idxmax, 3)) < 3) || (length(find(idxmin, 3)) < 3);
         if maybemonotonic
@@ -56,9 +56,9 @@ function [imf, r, nimf] = getimfs(y, x, maxnimf, idx)
         h = h - meanenv;
         
         for j = 1:100
-            extrema = conv([1, -1], sign(diff(h)));
-            idxmax = extrema == -2;
-            idxmin = extrema == 2;
+            extrema = conv([-0.5, 0.5], sign(diff(h)));
+            idxmax = extrema == 1; 
+            idxmin = extrema == -1;
             
             maybemonotonic = (length(find(idxmax, 3)) < 3) || (length(find(idxmin, 3)) < 3);
             if maybemonotonic

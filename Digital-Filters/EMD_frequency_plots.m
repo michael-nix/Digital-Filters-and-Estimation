@@ -11,7 +11,7 @@ load EMDFilterData;
 [ya1, fi1] = getanalytic(y1, x1);
 [ya3, fi3] = getanalytic(y3, x3);
 [ya5, fi5] = getanalytic(y5, x5);
-edges = 0:0.125:(16);
+edges = 0:0.125:16;
 
 ya1 = abs(ya1(idx)) / sum(abs(ya1(idx)));
 ya3 = abs(ya3(idx)) / sum(abs(ya3(idx)));

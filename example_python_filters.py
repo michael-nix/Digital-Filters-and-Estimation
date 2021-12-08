@@ -58,18 +58,9 @@ def py_getnotch(f0, dt = 1, m = 1):
 # Example EKF implementation for basic 3D linear kinematics estimates
 # assuming there are only acceleration measurements and everything is
 # equally uncertain.
-from numpy import array, ndarray, zeros, cross, eye, sqrt
+from numpy import array, zeros, eye
 from scipy.linalg import inv
 def py_exampleEKF(z, dt, x_est, P_est):
-    
-    if (type(z) != ndarray) or (type(P_est) != ndarray):
-        raise Exception('All inputs must be correctly shaped ndarrays.')
-
-    if len(z.shape) <= 1:
-        z = z.reshape(1, 1)
-
-    if len(P_est.shape) <= 1:
-        P_est = P_est.reshape(1, 1)
     
     F = state_transition(x_est, dt)
 
@@ -136,7 +127,8 @@ def observation_matrix(x_prd):
     return H
 
 def process_noise(x_est, dt):
-    Qa = eye(9, 9)
+    Qa = zeros((9, 9))
+    Qa[6:9,6:9] = eye(3, 3)
 
     return Qa
 

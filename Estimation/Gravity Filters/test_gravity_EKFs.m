@@ -83,32 +83,3 @@ axis([450 540 -3 4]); grid on;
 xlabel('Time (s)'); ylabel('Acceleration (m/s^2)');
 legend('raw data', 'filtered');
 results_fig.Position = [200 500 750 420];
-
-    function [alpha, beta] = getbutter(f0, dt, m)
-        if nargin < 2
-            dt = 1;
-        end
-
-        if nargin < 3
-            m = 3;
-        end
-
-        p = exp(1i * (2*(1:m).' + m - 1) * pi / 2 / m);
-
-        w0 = 2*pi*dt*f0;
-        w0 = 2/dt * tan(w0 * dt/2);
-
-        alpha = [(1 - w0/2 * p(1)); -(1 + w0/2 * p(1))];
-        for i = 2:m
-            alpha = conv(alpha, [(1 - w0/2 * p(i)); -(1 + w0/2 * p(i))]);
-        end
-        alpha = real(alpha);
-
-        beta = w0/2 * [1; 1];
-        for i = 2:m
-            beta = conv(beta, w0/2*[1; 1]);
-        end
-
-        beta = beta / alpha(1);
-        alpha = alpha / alpha(1);
-    end

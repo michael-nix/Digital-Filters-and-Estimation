@@ -34,26 +34,77 @@ def py_getbutter(f0, dt = 1, m = 3):
 
     return alpha, beta
 
-# Notch filter implementation, similar to betnotch.m
+# Notch filter implementation, similar to getnotch.m
+from numpy import conj, isscalar
 def py_getnotch(f0, dt = 1, m = 1):
     m = int(m)
 
-    w0 = 2 * pi * dt * f0
-    w0 = 2/dt * tan(w0 * dt/2)
-
-    alpha = array([(1 + w0/2), -(1 - w0/2)])
-    for i in range(1, m):
-        alpha = convolve(alpha, array([(1 + w0/2), -(1 - w0/2)]))
-    alpha = alpha.real
-
-    beta = array([1, -1])
-    for i in range(1, m):
-        beta = convolve(beta, array([1, -1]))
-
+    if isscalar(f0):
+        w0 = 2 * pi * dt * f0
+        w0 = 2/dt * tan(w0 * dt/2)
+    
+        alpha = array([(1 + w0/2), -(1 - w0/2)])
+        for i in range(1, m):
+            alpha = convolve(alpha, array([(1 + w0/2), -(1 - w0/2)]))
+        alpha = alpha.real
+    
+        beta = array([1, -1])
+        for i in range(1, m):
+            beta = convolve(beta, array([1, -1]))
+    else:
+        fn = f0[0]
+        bw = f0[1]
+        
+        w0 = 2 * pi * bw * dt
+        w0 = 2 / dt * tan(w0 * dt / 2)
+        p1 = exp(1j * 2 * pi * fn * dt)
+        p2 = conj(p1)
+        
+        alpha = convolve(array([(1 + w0/2), -(1 - w0/2) * p1]),
+                         array([(1 + w0/2), -(1 - w0/2) * p2]))
+        for i in range(1, m):
+            alpha = convolve(alpha, array([(1 + w0/2), -(1 - w0/2) * p1]))
+            alpha = convolve(alpha, array([(1 + w0/2), -(1 - w0/2) * p2]))
+        alpha = alpha.real
+        
+        beta = convolve(array([1, -p1]), array([1, -p2]))
+        for i in range(1, m):
+            beta = convolve(beta, array([1, -p1]))
+            beta = convolve(beta, array([1, -p2]))
+        beta = beta.real
+        
     beta = beta / alpha[0]
     alpha = alpha / alpha[0]
 
     return alpha, beta
+
+# Simple method to plot digital filters, similar to plotfilter.m
+from numpy import ones, absolute
+from matplotlib.pyplot import plot, xlabel, ylabel, grid, ylim, xlim
+def py_plotfilter(alpha, beta, n = 1024, ifplot = True):
+    
+    w = linspace(-pi, pi, n)
+    zi = exp(-1j * w)
+    
+    numerator = beta[0] * ones((n,))
+    for i in range(1, beta.size):
+        numerator = numerator + beta[i] * zi**i
+    
+    denominator = alpha[0] * ones((n,))
+    for i in range(1, alpha.size):
+        denominator = denominator + alpha[i] * zi**i
+    
+    H = numerator / denominator
+    
+    if ifplot:
+        plot(w / 2 / pi, absolute(H))
+        xlabel('Normalized Frequency (Hz)')
+        ylabel('Magnitude')
+        grid(True)
+        ylim([0, 1.05])
+        xlim([-0.5, 0.5])
+
+    return H, w
 
 # Example EKF implementation for basic 3D linear kinematics estimates
 # assuming there are only acceleration measurements and everything is

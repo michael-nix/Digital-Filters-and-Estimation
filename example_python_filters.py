@@ -115,16 +115,16 @@ def py_exampleEKF(z, dt, x_est, P_est):
     
     F = state_transition(x_est, dt)
 
-    Qa = process_noise(x_est, dt)
+    Qa = model_uncertainty(x_est, dt)
     Q = F @ Qa @ F.T
-    R = measurement_noise(z, dt)
+    R = measurement_uncertainty(z, dt)
     
-    x_prd = predict_state(x_est, dt)
+    x_prd = state_prediction(x_est, dt)
     P_prd = F @ P_est @ F.T + Q
     
-    y = z - predict_measurement(x_prd)
+    y = z - measurement_prediction(x_prd)
     
-    H = observation_matrix(x_prd)
+    H = measurement_observation(x_prd)
     S = H @ P_prd @ H.T + R
     K = P_prd @ H.T @ inv(S)
     
@@ -135,7 +135,7 @@ def py_exampleEKF(z, dt, x_est, P_est):
 
     return x_est, P_est
 
-def predict_state(x_est, dt):
+def state_prediction(x_est, dt):
     a = x_est[6:9]
     v = x_est[3:6] + a * dt
     d = x_est[0:3] + v * dt + a * dt**2 / 2
@@ -161,7 +161,7 @@ def state_transition(x_est, dt):
 
     return F
 
-def predict_measurement(x_prd):
+def measurement_prediction(x_prd):
     a = x_prd[6:9]
 
     hx = zeros((3, 1))
@@ -169,7 +169,7 @@ def predict_measurement(x_prd):
 
     return hx
 
-def observation_matrix(x_prd):
+def measurement_observation(x_prd):
     H = zeros((3, 9))
     I = eye(3, 3)
 
@@ -177,13 +177,13 @@ def observation_matrix(x_prd):
 
     return H
 
-def process_noise(x_est, dt):
+def model_uncertainty(x_est, dt):
     Qa = zeros((9, 9))
     Qa[6:9,6:9] = eye(3, 3)
 
     return Qa
 
-def measurement_noise(z, dt):
+def measurement_uncertainty(z, dt):
     R = eye(3, 3)
     
     return R

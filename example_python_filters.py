@@ -81,7 +81,7 @@ def py_getnotch(f0, dt = 1, m = 1):
 # Simple method to plot digital filters, similar to plotfilter.m
 from numpy import ones, absolute
 from matplotlib.pyplot import plot, xlabel, ylabel, grid, ylim, xlim
-def py_plotfilter(alpha, beta, n = 1024, ifplot = True):
+def py_plotfilter(alpha, beta, n = 1024, wantplot = True):
     
     w = linspace(-pi, pi, n)
     zi = exp(-1j * w)
@@ -96,7 +96,7 @@ def py_plotfilter(alpha, beta, n = 1024, ifplot = True):
     
     H = numerator / denominator
     
-    if ifplot:
+    if wantplot:
         plot(w / 2 / pi, absolute(H))
         xlabel('Normalized Frequency (Hz)')
         ylabel('Magnitude')

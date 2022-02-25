@@ -84,7 +84,8 @@ P_est = Fk* P_prd * Fk.' + K * R * K.';
 
     % Determine the uncertainty of the state prediction process:
     function Qa = model_uncertainty(x_est, ~)
-        Qa = eye(length(x_est));
+        Qa = zeros(length(x_est));
+        Qa(4:6,4:6) = eye(3);
     end
     
     % Determine the uncertainty of the measurements:

@@ -29,7 +29,15 @@ A long sampling period generally leads to false positives in lateral acceleratio
 
 From here on out we will use the terms centripetal acceleration, radial acceleration, and lateral acceleration to all mean the same thing.  It is close enough.
 
+When reading through the literature, there has been considerable effort in mapping the pose of the car of interest to a known good coordinate system such as the North-East-Down (NED) reference frame.  When using a phone to estimate the pose of the car, there have been many different ways of trying to determine the orientation of the phone relative to the car, as well as the position of the phone within the car.  Usually this means taking the phone's GPS speed and heading (relative to magnetic north pole), and somehow mapping it to its accelerometer and gyroscope readings.  Because of the use of the NED reference frame, the problem tends to be simplified by estimating 2D acceleration, speed, and a heading angle; assuming a good vector for down can be estimated and removed from the sensor readings.  These various approaches don't quite get us what we need; however, we still need to translate these estimates to estimates of centripetal acceleration as that's what all the studies on dangerous driving behaviour use in order to classify dangerous turns or lane changes.  So what we really need is a way to separate lateral and linear acceleration from smartphone sensors, while correcting for the fact that the smartphone might not be secure within the car.  To do this, we can use the following assumptions:
 
+1. Cars and phones are different things, and behave in different ways,
+2. Phones can be contained completely within a car,
+3. A phone's sensor's measurements can be fused to estimate the state of the car,
+4. All measured rotations are extrinsic, and short enough that they're circular,
+5. Movement of the phone within the car can be treated as another defect or source of noise.
+
+Now, because of how tires work, when a car is turning (but not slipping, sliding, or drifting), it is always travelling tangent to some curve, which we assume to be a circle.  
 
 <img src="./figures/Circular_motion_vectors.svg" alt="By Jmarini - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=5827902" class="center">
 

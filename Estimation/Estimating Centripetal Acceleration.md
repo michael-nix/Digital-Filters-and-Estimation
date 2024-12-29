@@ -49,14 +49,21 @@ Where we want to estimate the car's 3D velocity vector, $\mathbf{v}$, it's later
 
 ...
 
-$$ \mathbf{v}_{\mathrm{car}} = \mathbf{v}'_{\mathrm{car}} + \Delta \, t \mathbf{a}'_{\mathrm{phone}} $$
+```math
+\mathbf{v}_{\mathrm{car}} = \mathbf{v}'_{\mathrm{car}} + \Delta t \, \mathbf{a}'_{\mathrm{phone}}
+```
 
-$$ \mathbf{\omega}_{\mathrm{car}} = \mathbf{\omega}'_{\mathrm{car}} $$ 
+```math
+\mathbf{\omega}_{\mathrm{car}} = \mathbf{\omega}'_{\mathrm{car}}
+```
 
-$$ \mathbf{a}_{\mathrm{lat}} = \mathbf{\omega}' \times \mathbf{v}_{\mathrm{car}} $$
+```math
+\mathbf{a}_{\mathrm{lat}} = \mathbf{\omega}' \times \mathbf{v}_{\mathrm{car}}
+```
 
-$$ \mathbf{a}_{\mathrm{phone}} = \mathbf{a}'_{\mathrm{phone}} $$
-
+```math
+\mathbf{a}_{\mathrm{phone}} = \mathbf{a}'_{\mathrm{phone}}
+```
 Where a prime indicates an estimate from a previous time step, and all other quantities are for this current time step.  We can abstract these relationships into a linear operator by concatenating all of these equations, and then finding the Jacobian such that:
 
 ```math
@@ -80,17 +87,21 @@ Where a prime indicates an estimate from a previous time step, and all other qua
 Where **I** is the identity matrix, **0** is a matrix of zeros, **W** is a skew-symmetric matrix representing the rate of change of the lateral acceleration with respect to vector velocity: 
 
 $$ 
-\mathbf{W} = \frac{d}{d\mathbf{v}}(\mathbf{\omega} \times \mathbf{v}) = \begin{bmatrix} 0 & -\omega_z & \omega_y \\
+\mathbf{W} = \frac{d}{d\mathbf{v}}(\mathbf{\omega} \times \mathbf{v}) = 
+\begin{bmatrix} 0 & -\omega_z & \omega_y \\
 \omega_z & 0 & -\omega_x \\
--\omega_y & \omega_x & 0 \end{bmatrix} 
+-\omega_y & \omega_x & 0 
+\end{bmatrix} 
  $$
 
 And **V** is a skew-symmetric matrix representing the rate of change of lateral acceleration with respect to angular velocity:
 
 $$ 
-\mathbf{V} = \frac{d}{d\mathbf{\omega}}(\mathbf{\omega} \times \mathbf{v}) = \begin{bmatrix} 0 & v_z & -v_y \\
+\mathbf{V} = \frac{d}{d\mathbf{\omega}}(\mathbf{\omega} \times \mathbf{v}) = 
+\begin{bmatrix} 0 & v_z & -v_y \\
 -v_z & 0 & v_x \\
-v_y & -v_x & 0 \end{bmatrix} 
+v_y & -v_x & 0 
+\end{bmatrix} 
 $$
 
 In the parlance of Kalman filters, we can abstract this such that our state transition matrix, **F**, is simply: 

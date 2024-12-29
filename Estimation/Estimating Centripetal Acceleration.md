@@ -37,12 +37,17 @@ When reading through the literature, there has been considerable effort in mappi
 4. All measured rotations are extrinsic, and short enough that they're circular,
 5. Movement of the phone within the car can be treated as another defect or source of noise.
 
-Now, because of how tires work, when a car is turning (but not slipping, sliding, or drifting), it is always travelling tangent to some curve, which we assume to be a circle.  
+Now, because of how tires work, when a car is turning (but not slipping, sliding, or drifting), it is always traveling tangent to some curve, which we assume to be a circle.  However, the total acceleration vector does not have to be tangential to a curve, as it may contain linear acceleration (e.g. when starting from a stop; getting up to speed), as well as centripetal acceleration (turning a corner; changing a lane); the common scenario for this being coming to a stop before turning, e.g. at a stop sign or red light. By taking advantage of the physical characteristics of the car (i.e. acknowledging its tires) as well as the distinct characteristics of a mobile phone’s sensors (GPS is fundamentally different from an accelerometer), it should be possible to use basic kinematics and notions of three-dimensional angular velocity to estimate both linear and centripetal acceleration.
+
+A simple map of this could look something like:
+
+<img src="./figures/car motion.png" class="center"><br>
+
+Where we want to estimate the car's 3D velocity vector, $\mathbf{v}$, it's lateral acceleration, $\mathbf{a}_{\mathrm{lat}}$.  To do that, we'll also need to estimate the phone's raw acceleration (assuming gravity is removed), and its raw angular velocity (assuming bias is removed).  The measurements we'll have access to will be the same, but also include the speed reading from the GPS itself.  It's possible to gain some additional insight if also using the heading reading from the GPS, but that adds too much complexity for too little value if all we want to do is use centripetal acceleration estimates to do an offline classification of driver behaviour.
 
 <img src="./figures/Circular_motion_vectors.svg" alt="By Jmarini - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=5827902" class="center">
 
 
-<img src="./figures/car motion.png" class="center">
 
 <style>
     .center {

@@ -49,27 +49,18 @@ Where we want to estimate the car's 3D velocity vector, $\mathbf{v}$, it's later
 
 ...
 
-$$
-\mathbf{v}_{\mathrm{car}} = \mathbf{v}'_{\mathrm{car}} + \Delta \, t \mathbf{a}'_{\mathrm{phone}} 
-$$
+$$ \mathbf{v}_{\mathrm{car}} = \mathbf{v}'_{\mathrm{car}} + \Delta \, t \mathbf{a}'_{\mathrm{phone}} $$
 
-$$
-\mathbf{\omega}_{\mathrm{car}} = \mathbf{\omega}'_{\mathrm{car}} 
-$$ 
+$$ \mathbf{\omega}_{\mathrm{car}} = \mathbf{\omega}'_{\mathrm{car}} $$ 
 
-$$
-\mathbf{a}_{\mathrm{lat}} = \mathbf{\omega}' \times \mathbf{v}_{\mathrm{car}} 
-$$
+$$ \mathbf{a}_{\mathrm{lat}} = \mathbf{\omega}' \times \mathbf{v}_{\mathrm{car}} $$
 
-$$
-\mathbf{a}_{\mathrm{phone}} = \mathbf{a}'_{\mathrm{phone}} 
-$$
+$$ \mathbf{a}_{\mathrm{phone}} = \mathbf{a}'_{\mathrm{phone}} $$
 
 Where a prime indicates an estimate from a previous time step, and all other quantities are for this current time step.  We can abstract these relationships into a linear operator by concatenating all of these equations, and then finding the Jacobian such that:
 
-$$
-\begin{bmatrix} 
-\mathbf{v}_{\mathrm{car}} \\
+```math
+\begin{bmatrix} \mathbf{v}_{\mathrm{car}} \\
 \mathbf{\omega}_{\mathrm{car}} \\
 \mathbf{a}_{\mathrm{lat}} \\
 \mathbf{a}_{\mathrm{phone}} 
@@ -84,7 +75,7 @@ $$
 \mathbf{a}'_{\mathrm{lat}} \\
 \mathbf{a}'_{\mathrm{phone}} 
 \end{bmatrix} 
-$$
+```
 
 Where **I** is the identity matrix, **0** is a matrix of zeros, **W** is a skew-symmetric matrix representing the rate of change of the lateral acceleration with respect to vector velocity: 
 

@@ -68,16 +68,22 @@ $$
 Where a prime indicates an estimate from a previous time step, and all other quantities are for this current time step.  We can abstract these relationships into a linear operator by concatenating all of these equations, and then finding the Jacobian such that:
 
 $$
-\begin{bmatrix} \mathbf{v}_{\mathrm{car}} \\
+\begin{bmatrix} 
+\mathbf{v}_{\mathrm{car}} \\
 \mathbf{\omega}_{\mathrm{car}} \\
 \mathbf{a}_{\mathrm{lat}} \\
-\mathbf{a}_{\mathrm{phone}} \end{bmatrix} = \begin{bmatrix} \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \\
+\mathbf{a}_{\mathrm{phone}} 
+\end{bmatrix} = 
+\begin{bmatrix} \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \\
 \mathbf{0}_3 & \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 \\
 \mathbf{W} & \mathbf{V} & \mathbf{0}_3 & \mathbf{W} \Delta \, t \\
-\mathbf{0}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \end{bmatrix} \begin{bmatrix} \mathbf{v}'_{\mathrm{car}} \\
+\mathbf{0}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 
+\end{bmatrix} 
+\begin{bmatrix} \mathbf{v}'_{\mathrm{car}} \\
 \mathbf{\omega}'_{\mathrm{car}} \\
 \mathbf{a}'_{\mathrm{lat}} \\
-\mathbf{a}'_{\mathrm{phone}} \end{bmatrix} 
+\mathbf{a}'_{\mathrm{phone}} 
+\end{bmatrix} 
 $$
 
 Where **I** is the identity matrix, **0** is a matrix of zeros, **W** is a skew-symmetric matrix representing the rate of change of the lateral acceleration with respect to vector velocity: 

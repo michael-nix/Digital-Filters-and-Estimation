@@ -216,11 +216,8 @@ $\mathbf{K}$ is our Kalman gain, and:
 \begin{aligned}
 \mathbf{x}_e &= \mathbf{x}_p + \mathbf{K}(\mathbf{z} - \mathbf{Hx}_p) \\
 &= (\mathbf{I} - \mathbf{KH})\mathbf{x}_p + \mathbf{Kz} \\
+\mathbf{P}_e &= (\mathbf{I-KH})\mathbf{P}_p(\mathbf{I-KH})^\mathrm{T} + \mathbf{KRK}^\mathrm{T}
 \end{aligned}
-```
-
-```math
-\mathbf{P}_e = (\mathbf{I-KH})\mathbf{P}_p(\mathbf{I-KH})^\mathrm{T} + \mathbf{KRK}^\mathrm{T}
 ```
 
 Gives us $\mathbf{x}_e$ as our corrected estimate of the car’s state in this time step, and $\mathbf{P}_e$ the covariance matrix for its uncertainties. The only thing outstanding to make this possible is to figure out what the uncertainties / covariance for our process and measurements are. And in order to get a handle of that, we’ll have to go through a simplified analysis to better understand how various predictions and measurements are combined to create estimates.

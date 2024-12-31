@@ -216,8 +216,9 @@ $\mathbf{K}$ is our Kalman gain, and:
 \begin{aligned}
 \mathbf{x}_e &= \mathbf{x}_p + \mathbf{K}(\mathbf{z} - \mathbf{Hx}_p) \\
 &= (\mathbf{I} - \mathbf{KH})\mathbf{x}_p + \mathbf{Kz} \\
-\end{aligned} \\
-\\
+\end{aligned}
+```
+```math
 \mathbf{P}_e = (\mathbf{I-KH})\mathbf{P}_p(\mathbf{I-KH})^\mathrm{T} + \mathbf{KRK}^\mathrm{T}
 ```
 

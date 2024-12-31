@@ -44,11 +44,26 @@ A simple map of this could look something like:
 
 <p align="center"><img src="./figures/car motion.png" width="50%"></p>
 
-Where we want to estimate the car's 3D velocity vector, $\mathbf{v}$, it's lateral acceleration, $\mathbf{a}_{\mathrm{lat}}$.  To do that, we'll also need to estimate the phone's raw acceleration (assuming gravity is removed), and its raw angular velocity (assuming bias is removed).  The measurements we'll have access to will be the same, but also include the speed reading from the GPS itself.  It's possible to gain some additional insight if also using the heading reading from the GPS, but that adds too much complexity for too little value if all we want to do is use centripetal acceleration estimates to do an offline classification of driver behaviour.
+Where we want to estimate the car's 3D velocity vector, $\mathbf{v}_\mathrm{car}$, it's lateral acceleration, $\mathbf{a}_{\mathrm{lat}}$.  To do that, we'll also need to estimate the phone's raw acceleration (assuming gravity is removed), and its raw angular velocity (assuming bias is removed).  The measurements we'll have access to will be the same, but also include the speed reading from the GPS itself.  It's possible to gain some additional insight if also using the heading reading from the GPS, but that adds too much complexity for too little value if all we want to do is use centripetal acceleration estimates to do an offline classification of driver behaviour.
+
+Because of how circles work, if we sample our measurements fast enough we can assume all extrinsic rotations are circular, so that we can use the following vector relations:
 
 <p align="center"><img src="./figures/Circular_motion_vectors.svg" alt="By Jmarini - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=5827902" width="50%"></p>
 
-...
+Where we use upper-case Omega and lower-case omega interchangeably to represent the vector of angular velocity; from here we’ll only use lower-case omega.
+
+The key insight is that though the phone’s accelerometer data is nearly useless on its own, once we remove significant sources of bias from it, it can still be used to inform the other estimates in our filter, allowing us to estimate a velocity vector, which we can use to directly calculate lateral acceleration from gyroscope estimates.
+
+Before using any sensor measurements, all constant acceleration or gyroscope bias is removed from data using simple filters; taking into account average group delay.  While there will be residual error in this approach, the Kalman filter should be able to compensate for some of it.
+
+As a recursive filter, designing a Kalman filter requires a few considerations:
+
+1. A process model that takes estimates from the previous time step, predicting what they might be in this current time step,
+2. A measurement model that uses these estimate predictions to predict what the measurements might be,
+3. A process noise model that captures the relative uncertainty of your process model,
+4. A measurement noise model that captures the relative uncertainty of your measurements.
+
+Because the mapping between vector and scalar values (e.g. GPS speed as a scalar value) requires a nonlinear process, we’ll have to use an Extended Kalman Filter. Using the circular relations above, we’ll need to keep track of a velocity vector estimate, using vector accelerometer readings and scalar speed readings from GPS. The relationships are then relatively simple, where we predict the velocity, angular velocity, lateral acceleration and linear acceleration of the car from previous estimates:
 
 ```math
 \mathbf{v}_{\mathrm{car}} = \mathbf{v}'_{\mathrm{car}} + \Delta t \, \mathbf{a}'_{\mathrm{phone}}
@@ -105,7 +120,7 @@ v_y & -v_x & 0
 \end{bmatrix} 
 $$
 
-In the parlance of Kalman filters, we can abstract this such that our state transition matrix, **F**, is simply: 
+In the parlance of Kalman filters, we can abstract this such that our state transition matrix, $\mathbf{F}$, is simply: 
 
 $$ 
 \mathbf{F} = \begin{bmatrix} \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \\
@@ -155,7 +170,7 @@ v_x & v_y & v_z
 \end{bmatrix}
 ```
 
-We can then abstract this back to get our observation matrix, H:
+We can then abstract this back to get our observation matrix, $\mathbf{H}$:
 
 ```math
 \mathbf{H} = 
@@ -184,7 +199,7 @@ Which transforms into a process uncertainty matrix, $\mathbf{Q}$:
 \mathbf{Q} = \mathbf{FQ}_a\mathbf{F}^\mathrm{T}
 ```
 
-Finally, we assume that because our three sensors—GPS, gyroscope, accelerometer—are all separate devices, even though they’re combined in one smartphone, have no overlapping uncertainties in their larger covariance matrix, $\mathbf{R}$:
+Finally, we assume that because our three sensors—-GPS, gyroscope, accelerometer-—are all separate devices, even though they’re combined in one smartphone, have no overlapping uncertainties in their larger covariance matrix, $\mathbf{R}$:
 
 ```math
 \mathbf{R} = 
@@ -468,3 +483,8 @@ Pseudocode is very boring:
    - update speed measurement
    - new state estimate = kalman_filter_GPS (old state, speed measurement)
 
+## Example
+
+While I can't give a full implementation of this filter, I can share one small snippet of some initial results from an unrefined beta test:
+
+<p align="center"><img src="./figures/centripetal acceleration.png" width="90%"></p>

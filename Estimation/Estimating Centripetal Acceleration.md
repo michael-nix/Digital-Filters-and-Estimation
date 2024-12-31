@@ -1,6 +1,7 @@
-<div style="font-size:xx-large">Estimating Centripetal Acceleration</div>
-<sub>An Extended Kalman Filter to estimate centripetal acceleration from GNSS and IMU readings
-<br>Michael Nix, Allegory Technology, Toronto, Canada, 2021</sub>
+# Estimating Centripetal Acceleration
+An Extended Kalman Filter to estimate centripetal acceleration from GNSS and IMU readings
+
+**Michael Nix**, Allegory Technology, Toronto, Canada, 2021
 
 ---
 
@@ -41,11 +42,11 @@ Now, because of how tires work, when a car is turning (but not slipping, sliding
 
 A simple map of this could look something like:
 
-<img src="./figures/car motion.png" class="center"><br>
+<p align="center"><img src="./figures/car motion.png" width="50%"></p>
 
 Where we want to estimate the car's 3D velocity vector, $\mathbf{v}$, it's lateral acceleration, $\mathbf{a}_{\mathrm{lat}}$.  To do that, we'll also need to estimate the phone's raw acceleration (assuming gravity is removed), and its raw angular velocity (assuming bias is removed).  The measurements we'll have access to will be the same, but also include the speed reading from the GPS itself.  It's possible to gain some additional insight if also using the heading reading from the GPS, but that adds too much complexity for too little value if all we want to do is use centripetal acceleration estimates to do an offline classification of driver behaviour.
 
-<img src="./figures/Circular_motion_vectors.svg" alt="By Jmarini - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=5827902" class="center">
+<p align="center"><img src="./figures/Circular_motion_vectors.svg" alt="By Jmarini - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=5827902" width="50%"></p>
 
 ...
 
@@ -84,7 +85,7 @@ Where a prime indicates an estimate from a previous time step, and all other qua
 \end{bmatrix} 
 ```
 
-Where **I** is the identity matrix, **0** is a matrix of zeros, **W** is a skew-symmetric matrix representing the rate of change of the lateral acceleration with respect to vector velocity: 
+Where $\mathbf{I}$ is the identity matrix, $\mathbf{0}$ is a matrix of zeros, $\mathbf{W}$ is a skew-symmetric matrix representing the rate of change of the lateral acceleration with respect to vector velocity: 
 
 $$ 
 \mathbf{W} = \frac{d}{d\mathbf{v}}(\mathbf{\omega} \times \mathbf{v}) = 
@@ -94,7 +95,7 @@ $$
 \end{bmatrix} 
  $$
 
-And **V** is a skew-symmetric matrix representing the rate of change of lateral acceleration with respect to angular velocity:
+And $\mathbf{V}$ is a skew-symmetric matrix representing the rate of change of lateral acceleration with respect to angular velocity:
 
 $$ 
 \mathbf{V} = \frac{d}{d\mathbf{\omega}}(\mathbf{\omega} \times \mathbf{v}) = 
@@ -107,17 +108,123 @@ $$
 In the parlance of Kalman filters, we can abstract this such that our state transition matrix, **F**, is simply: 
 
 $$ 
-\begin{bmatrix} \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \\
+\mathbf{F} = \begin{bmatrix} \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \\
 \mathbf{0}_3 & \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 \\
 \mathbf{W} & \mathbf{V} & \mathbf{0}_3 & \mathbf{W} \Delta \, t \\
 \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3 \end{bmatrix} 
 $$
 
-<style>
-    .center {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 50%;
-    }
-</style>
+We also need a way to map our predictions to measurements by using them to predict what the measurements might be. Since we have a scalar speed from our GPS, vector angular velocity from our gyroscope, and vector acceleration from accelerometer. This means that our measurement predictions can be:
+
+```math
+v_{\mathrm{GPS}} = (\mathbf{v}^\mathrm{T}_{\mathrm{car}}\mathbf{v}_{\mathrm{car}})^{\frac{1}{2}} \\
+
+\mathbf{\omega}_{\mathrm{gyro}} = \mathbf{\omega}_{\mathrm{car}} \\
+
+\mathbf{a}_{\mathrm{accel}} = \mathbf{a}_{\mathrm{phone}}
+```
+
+Where again, we combine these relationships into a vector, then find its Jacobian to linearize them so that measurement predictions can be related to estimate predictions by:
+
+```math
+\begin{bmatrix}
+v_\mathrm{GPS} \\
+\mathbf{\omega}_\mathrm{gyro} \\
+\mathbf{a}_\mathrm{accel}
+\end{bmatrix} = 
+\begin{bmatrix}
+|\partial\mathbf{v}| & \mathbf{0}_{1\times3} & \mathbf{0}_{1\times3} & \mathbf{0}_{1\times3} \\
+\mathbf{0}_3 & \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 \\
+\mathbf{0}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{v}_\mathrm{car} \\
+\mathbf{\omega}_\mathrm{car} \\
+\mathbf{a}_\mathrm{lat} \\
+\mathbf{a}_\mathrm{phone}
+\end{bmatrix}
+```
+
+Where the Jacobian of a speed scalar with respect to its underlying velocity vector is:
+
+```math
+|\partial\mathbf{v}| = \frac{d}{d\mathbf{v}}(\mathbf{v}^\mathrm{T}\mathbf{v})^\frac{1}{2}
+= (\mathbf{v}^\mathrm{T}\mathbf{v})^{-\frac{1}{2}}
+\begin{bmatrix}
+v_x & v_y & v_z
+\end{bmatrix}
+```
+
+We can then abstract this back to get our observation matrix, H:
+
+```math
+\mathbf{H} = 
+\begin{bmatrix}
+|\partial\mathbf{v}| & \mathbf{0}_{1\times 3} & \mathbf{0}_{1\times 3} & \mathbf{0}_{1\times 3} \\
+\mathbf{0}_3 & \mathbf{I}_3 & \mathbf{0}_3 & \mathbf{0}_3 \\
+\mathbf{0}_3 & \mathbf{0}_3 & \mathbf{0}_3 & \mathbf{I}_3
+\end{bmatrix}
+```
+
+Since we’re using a constant acceleration and constant angular velocity model, that makes our model uncertainty matrix:
+
+```math
+\mathbf{Q}_a = 
+\begin{bmatrix}
+\mathbf{0}_3 & \cdots & \cdots & \mathbf{0}_3 \\
+\vdots & \sigma^2_\omega & \ddots & \vdots \\
+\vdots & \ddots & \mathbf{0}_3 & \mathbf{0}_3 \\
+\mathbf{0}_3 & \cdots & \mathbf{0}_3 & \sigma^2_a
+\end{bmatrix}
+```
+
+Which transforms into a process uncertainty matrix, $\mathbf{Q}$:
+
+```math
+\mathbf{Q} = \mathbf{FQ}_a\mathbf{F}^\mathrm{T}
+```
+
+Finally, we assume that because our three sensors—GPS, gyroscope, accelerometer—are all separate devices, even though they’re combined in one smartphone, have no overlapping uncertainties in their larger covariance matrix, $\mathbf{R}$:
+
+```math
+\mathbf{R} = 
+\begin{bmatrix}
+\sigma^2_\mathrm{GPS} & \mathbf{0}_{1\times 3} & \mathbf{0}_{1\times 3} \\
+\mathbf{0}_{3\times 1} & \sigma^2_\mathrm{gyro}\mathbf{I}_3 & \mathbf{0}_{3} \\
+\mathbf{0}_{3\times 1} & \mathbf{0}_3 & \sigma^2_\mathrm{accel}\mathbf{I}_3
+\end{bmatrix}
+```
+
+Where we also assume no covariance in measurement within each sensor, as both gyroscopes and accelerometers collect measurements along three orthogonal axes. Even if there is some covariance between sensors or between sensor axes, that will just eventually increase the uncertainty in estimates via covariances that will most likely be quite small.
+
+From here, we can just use the above matrices to march step-by-step through a Kalman filter as measurements come through with the standard formulas:
+
+```math
+\mathbf{x}_p = \mathbf{Fx}' \\
+\mathbf{P}_p = \mathbf{FP}'\mathbf{F}^\mathrm{T} + \mathbf{Q}
+```
+
+Where $\mathbf{x}_p$ is a prediction of the current state (in this case, our car), $\mathbf{P}_p$ a prediction of the uncertainties in that state. Combined with the observation matrix, and noise matrices:
+
+```math
+\mathbf{K} = \mathbf{P}_p\mathbf{H}^\mathrm{T}(\mathbf{HP}_p\mathbf{H}^\mathrm{T} + \mathbf{R})^{-1}
+```
+
+$\mathbf{K}$ is our Kalman gain, and:
+
+```math
+\begin{aligned}
+\mathbf{x}_e &= \mathbf{x}_p + \mathbf{K}(\mathbf{z} - \mathbf{Hx}_p) \\
+&= (\mathbf{I} - \mathbf{KH})\mathbf{x}_p + \mathbf{Kz}
+\end{aligned} \\
+\mathbf{P}_e = (\mathbf{I-KH})\mathbf{P}_p(\mathbf{I-KH})^\mathrm{T} + \mathbf{KRK}^\mathrm{T}
+```
+
+Gives us $\mathbf{x}_e$ as our corrected estimate of the car’s state in this time step, and $\mathbf{P}_e$ the covariance matrix for its uncertainties. The only thing outstanding to make this possible is to figure out what the uncertainties / covariance for our process and measurements are. And in order to get a handle of that, we’ll have to go through a simplified analysis to better understand how various predictions and measurements are combined to create estimates.
+
+## Simplified Analysis
+
+In order to design process or measurement uncertainty models, we first need to understand how, based on our state and measurement prediction models fuse to inform our estimates. Since we’re effectively collecting seven measurements (GPS speed, angular velocity vector, acceleration vector), a full analysis will require us to invert a 7x7 matrix which is untenable by hand. However, if we simplify things, reducing vectors to scalars where appropriate, we’ll only need to invert a 3x3 matrix, which is relatively straightforward to do by hand.
+
+We start with our simplified state transition model, $\mathbf{F}$:
+

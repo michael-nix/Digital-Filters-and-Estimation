@@ -80,6 +80,7 @@ Because the mapping between vector and scalar values (e.g. GPS speed as a scalar
 ```math
 \mathbf{a}_{\mathrm{phone}} = \mathbf{a}'_{\mathrm{phone}}
 ```
+
 Where a prime indicates an estimate from a previous time step, and all other quantities are for this current time step.  We can abstract these relationships into a linear operator by concatenating all of these equations, and then finding the Jacobian such that:
 
 ```math

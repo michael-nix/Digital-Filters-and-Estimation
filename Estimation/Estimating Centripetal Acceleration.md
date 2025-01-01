@@ -394,9 +394,9 @@ Theoretically it’s possible to control how often you receive data from smartph
 
 Reading through the literature, most filtering for telematics seems to assume that measurements all come in at the same time, so that every time you update your state estimates, you don’t have to think about the above complications. However, since this isn’t the case in real life, we investigated a few possible ways to address things:
 
-1. Fixed Rate Filtering: filtering at regular time intervals using the most recent measurements,
-2. Loose Filtering: accumulating high frequency measurements while waiting for your slowest measurement to arrive,
-3. Sequential Filtering: updating your state estimate every time a measurement arrives.
+1. **Fixed Rate Filtering**: filtering at regular time intervals using the most recent measurements,
+2. **Loose Filtering**: accumulating high frequency measurements while waiting for your slowest measurement to arrive,
+3. **Sequential Filtering**: updating your state estimate every time a measurement arrives.
 
 None of these are really discussed in the literature, though fixed rate (with simultaneous measurements) seems to be the approach that’s typically assumed. I have come across loose and sequential filtering in the wild via open-source implementations that are public on GitHub, but I don’t really consider sequential filtering to be sensor fusion, as it really just implements a separate filter for each measurement, meaning it’s just a least squares estimator.
 

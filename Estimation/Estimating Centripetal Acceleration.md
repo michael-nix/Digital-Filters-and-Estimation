@@ -133,8 +133,12 @@ $$
 We also need a way to map our predictions to measurements by using them to predict what the measurements might be. Since we have a scalar speed from our GPS, vector angular velocity from our gyroscope, and vector acceleration from accelerometer. This means that our measurement predictions can be:
 
 ```math
-v_{\mathrm{GPS}} = (\mathbf{v}^\mathrm{T}_{\mathrm{car}}\mathbf{v}_{\mathrm{car}})^{\frac{1}{2}} \\
-\mathbf{\omega}_{\mathrm{gyro}} = \mathbf{\omega}_{\mathrm{car}} \\
+v_{\mathrm{GPS}} = (\mathbf{v}^\mathrm{T}_{\mathrm{car}}\mathbf{v}_{\mathrm{car}})^{\frac{1}{2}}
+```
+```math
+\mathbf{\omega}_{\mathrm{gyro}} = \mathbf{\omega}_{\mathrm{car}}
+```
+```math
 \mathbf{a}_{\mathrm{accel}} = \mathbf{a}_{\mathrm{phone}}
 ```
 

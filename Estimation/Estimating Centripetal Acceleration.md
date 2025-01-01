@@ -134,9 +134,7 @@ We also need a way to map our predictions to measurements by using them to predi
 
 ```math
 v_{\mathrm{GPS}} = (\mathbf{v}^\mathrm{T}_{\mathrm{car}}\mathbf{v}_{\mathrm{car}})^{\frac{1}{2}} \\
-
 \mathbf{\omega}_{\mathrm{gyro}} = \mathbf{\omega}_{\mathrm{car}} \\
-
 \mathbf{a}_{\mathrm{accel}} = \mathbf{a}_{\mathrm{phone}}
 ```
 

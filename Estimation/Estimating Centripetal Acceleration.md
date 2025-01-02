@@ -38,7 +38,7 @@ When reading through the literature, there has been considerable effort in mappi
 4. All measured rotations are extrinsic, and short enough that they're circular,
 5. Movement of the phone within the car can be treated as another defect or source of noise.
 
-Now, because of how tires work, when a car is turning (but not slipping, sliding, or drifting), it is always traveling tangent to some curve, which we assume to be a circle.  However, the total acceleration vector does not have to be tangential to a curve, as it may contain linear acceleration (e.g. when starting from a stop; getting up to speed), as well as centripetal acceleration (turning a corner; changing a lane); the common scenario for this being coming to a stop before turning, e.g. at a stop sign or red light. By taking advantage of the physical characteristics of the car (i.e. acknowledging its tires) as well as the distinct characteristics of a mobile phone’s sensors (GPS is fundamentally different from an accelerometer), it should be possible to use basic kinematics and notions of three-dimensional angular velocity to estimate both linear and centripetal acceleration.
+Now, because of how tires work, when a car is turning (but not slipping, sliding, or drifting), it is always traveling tangent to some curve, which we assume to be a circle.  However, the total acceleration vector does not have to be tangential to a curve, as it may contain linear acceleration (e.g. when starting from a stop; getting up to speed), as well as centripetal acceleration (turning a corner; changing a lane); the common scenario for this being coming to a stop before turning, e.g. at a stop sign or red light. By taking advantage of the physical characteristics of the car (i.e. acknowledging its tires) as well as the distinct characteristics of a mobile phone's sensors (GPS is fundamentally different from an accelerometer), it should be possible to use basic kinematics and notions of three-dimensional angular velocity to estimate both linear and centripetal acceleration.
 
 A simple map of this could look something like:
 
@@ -50,9 +50,9 @@ Because of how circles work, if we sample our measurements fast enough we can as
 
 <p align="center"><img src="./figures/Circular_motion_vectors.svg" alt="By Jmarini - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=5827902" width="50%"></p>
 
-Where we use upper-case Omega and lower-case omega interchangeably to represent the vector of angular velocity; from here we’ll only use lower-case omega.
+Where we use upper-case Omega and lower-case omega interchangeably to represent the vector of angular velocity; from here we'll only use lower-case omega.
 
-The key insight is that though the phone’s accelerometer data is nearly useless on its own, once we remove significant sources of bias from it, it can still be used to inform the other estimates in our filter, allowing us to estimate a velocity vector, which we can use to directly calculate lateral acceleration from gyroscope estimates.
+The key insight is that though the phone's accelerometer data is nearly useless on its own, once we remove significant sources of bias from it, it can still be used to inform the other estimates in our filter, allowing us to estimate a velocity vector, which we can use to directly calculate lateral acceleration from gyroscope estimates.
 
 Before using any sensor measurements, all constant acceleration or gyroscope bias is removed from data using simple filters; taking into account average group delay.  While there will be residual error in this approach, the Kalman filter should be able to compensate for some of it.
 
@@ -63,7 +63,7 @@ As a recursive filter, designing a Kalman filter requires a few considerations:
 3. A process noise model that captures the relative uncertainty of your process model,
 4. A measurement noise model that captures the relative uncertainty of your measurements.
 
-Because the mapping between vector and scalar values (e.g. GPS speed as a scalar value) requires a nonlinear process, we’ll have to use an Extended Kalman Filter. Using the circular relations above, we’ll need to keep track of a velocity vector estimate, using vector accelerometer readings and scalar speed readings from GPS. The relationships are then relatively simple, where we predict the velocity, angular velocity, lateral acceleration and linear acceleration of the car from previous estimates:
+Because the mapping between vector and scalar values (e.g. GPS speed as a scalar value) requires a nonlinear process, we'll have to use an Extended Kalman Filter. Using the circular relations above, we'll need to keep track of a velocity vector estimate, using vector accelerometer readings and scalar speed readings from GPS. The relationships are then relatively simple, where we predict the velocity, angular velocity, lateral acceleration and linear acceleration of the car from previous estimates:
 
 ```math
 \mathbf{v}_{\mathrm{car}} = \mathbf{v}'_{\mathrm{car}} + \Delta t \, \mathbf{a}'_{\mathrm{phone}}
@@ -184,7 +184,7 @@ We can then abstract this back to get our observation matrix, $\mathbf{H}$:
 \end{bmatrix}
 ```
 
-Since we’re using a constant acceleration and constant angular velocity model, that makes our model uncertainty matrix:
+Since we're using a constant acceleration and constant angular velocity model, that makes our model uncertainty matrix:
 
 ```math
 \mathbf{Q}_a = 
@@ -202,7 +202,7 @@ Which transforms into a process uncertainty matrix, $\mathbf{Q}$:
 \mathbf{Q} = \mathbf{FQ}_a\mathbf{F}^\mathrm{T}
 ```
 
-Finally, we assume that because our three sensors—-GPS, gyroscope, accelerometer-—are all separate devices, even though they’re combined in one smartphone, have no overlapping uncertainties in their larger covariance matrix, $\mathbf{R}$:
+Finally, we assume that because our three sensors—-GPS, gyroscope, accelerometer-—are all separate devices, even though they're combined in one smartphone, have no overlapping uncertainties in their larger covariance matrix, $\mathbf{R}$:
 
 ```math
 \mathbf{R} = 
@@ -238,11 +238,11 @@ $\mathbf{K}$ is our Kalman gain, and:
 \end{aligned}
 ```
 
-Gives us $\mathbf{x}_e$ as our corrected estimate of the car’s state in this time step, and $\mathbf{P}_e$ the covariance matrix for its uncertainties. The only thing outstanding to make this possible is to figure out what the uncertainties / covariance for our process and measurements are. And in order to get a handle of that, we’ll have to go through a simplified analysis to better understand how various predictions and measurements are combined to create estimates.
+Gives us $\mathbf{x}_e$ as our corrected estimate of the car's state in this time step, and $\mathbf{P}_e$ the covariance matrix for its uncertainties. The only thing outstanding to make this possible is to figure out what the uncertainties / covariance for our process and measurements are. And in order to get a handle of that, we'll have to go through a simplified analysis to better understand how various predictions and measurements are combined to create estimates.
 
 ## Simplified Analysis
 
-In order to design process or measurement uncertainty models, we first need to understand how, based on our state and measurement prediction models fuse to inform our estimates. Since we’re effectively collecting seven measurements (GPS speed, angular velocity vector, acceleration vector), a full analysis will require us to invert a 7x7 matrix which is untenable by hand. However, if we simplify things, reducing vectors to scalars where appropriate, we’ll only need to invert a 3x3 matrix, which is relatively straightforward to do by hand.
+In order to design process or measurement uncertainty models, we first need to understand how, based on our state and measurement prediction models fuse to inform our estimates. Since we're effectively collecting seven measurements (GPS speed, angular velocity vector, acceleration vector), a full analysis will require us to invert a 7x7 matrix which is untenable by hand. However, if we simplify things, reducing vectors to scalars where appropriate, we'll only need to invert a 3x3 matrix, which is relatively straightforward to do by hand.
 
 We start with our simplified state transition model, $\mathbf{F}$:
 
@@ -256,7 +256,7 @@ We start with our simplified state transition model, $\mathbf{F}$:
 \end{bmatrix}
 ```
 
-Where $\alpha$ is an arbitrary constant that somehow turns speed estimates into lateral acceleration estimates, and $\beta$ is an arbitrary constant that somehow turns angular speed estimates into lateral acceleration estimates. We won’t need to know what $\alpha$ and $\beta$ actually are, because this simplified analysis is only used to help us design noise models. Similarly, our model uncertainty matrix is close to what we had in the vector case:
+Where $\alpha$ is an arbitrary constant that somehow turns speed estimates into lateral acceleration estimates, and $\beta$ is an arbitrary constant that somehow turns angular speed estimates into lateral acceleration estimates. We won't need to know what $\alpha$ and $\beta$ actually are, because this simplified analysis is only used to help us design noise models. Similarly, our model uncertainty matrix is close to what we had in the vector case:
 
 ```math
 \mathbf{Q}_a =
@@ -268,7 +268,7 @@ Where $\alpha$ is an arbitrary constant that somehow turns speed estimates into 
 \end{bmatrix}
 ```
 
-This will have to be translated into a state transition uncertainty measurement as discussed above, though we won’t be combining it with the uncertainty in previous estimates in order to keep the analysis a little easier to manage. Now, our measurement prediction matrix is also close to what we had above:
+This will have to be translated into a state transition uncertainty measurement as discussed above, though we won't be combining it with the uncertainty in previous estimates in order to keep the analysis a little easier to manage. Now, our measurement prediction matrix is also close to what we had above:
 
 ```math
 \mathbf{H} = 
@@ -290,7 +290,7 @@ As is our measurement uncertainty matrix:
 \end{bmatrix}
 ```
 
-I’ll leave the calculation of the Kalman gain, K, to the reader, but it will be used to assemble our estimates for any given time step as:
+I'll leave the calculation of the Kalman gain, K, to the reader, but it will be used to assemble our estimates for any given time step as:
 
 ```math
 \begin{bmatrix}
@@ -337,7 +337,7 @@ Completely ignoring all phone accelerometer measurements and phone acceleration 
 \lim_{\sigma^2_\mathrm{accel} \rightarrow \infty} a^e_\mathrm{lat} = \alpha v_\mathrm{GPS} + \beta\frac{\sigma^2_\omega\omega_\mathrm{gyro} + \sigma^2_\mathrm{gyro}\omega'}{\sigma^2_\omega + \sigma^2_\mathrm{gyro}}
 ```
 
-So even if we can’t rely at all upon accelerometer data, at least we can fuse previous angular velocity estimates, current angular velocity measurements, and current speed measurements. Similarly, if we send the uncertainty of the GPS speed measurements out to infinity, we get:
+So even if we can't rely at all upon accelerometer data, at least we can fuse previous angular velocity estimates, current angular velocity measurements, and current speed measurements. Similarly, if we send the uncertainty of the GPS speed measurements out to infinity, we get:
 
 ```math
 \begin{aligned}
@@ -350,15 +350,15 @@ Showing that if GPS fails for whatever reason, we can still update our lateral a
 
 ## Noise Models
 
-In the literature they tend to say that noise models need to be constructed using, “engineering intuition,” but what this usually means is that people use static noise models based on sensor noise given by the manufacturer. However, as we know from our previous work analyzing Kalman filter variants, prediction model noise, prediction process noise, and measurement noise are just forms of uncertainty, relative in magnitude to one another, as they’re ultimately used as the weights in a weighted sum. Ergo, it’s not important to understand the noise of your model, process, or sensors in absolute terms, just in relative terms. We can then use an understanding of our operating conditions to determine when to prefer the predictions over the measurements. Also, since it’s obvious from the simplified analysis above that angular velocity measurements are always used separately from acceleration or speed measurements, we can consider their noise models separately.
+In the literature they tend to say that noise models need to be constructed using, “engineering intuition,” but what this usually means is that people use static noise models based on sensor noise given by the manufacturer. However, as we know from our previous work analyzing Kalman filter variants, prediction model noise, prediction process noise, and measurement noise are just forms of uncertainty, relative in magnitude to one another, as they're ultimately used as the weights in a weighted sum. Ergo, it's not important to understand the noise of your model, process, or sensors in absolute terms, just in relative terms. We can then use an understanding of our operating conditions to determine when to prefer the predictions over the measurements. Also, since it's obvious from the simplified analysis above that angular velocity measurements are always used separately from acceleration or speed measurements, we can consider their noise models separately.
 
-First, for the model noise, since we’re assuming a constant acceleration and a constant angular velocity; and, also because we can consider these models independently, we’ll set them to be the same constant which for simplicity will be one, i.e.:
+First, for the model noise, since we're assuming a constant acceleration and a constant angular velocity; and, also because we can consider these models independently, we'll set them to be the same constant which for simplicity will be one, i.e.:
 
 ```math
 \sigma^2_a = \sigma^2_\omega = 1
 ```
 
-Now, because we’re trying to account for smartphones and their sensors being loose within a car in order to estimate the state of the car itself, we have to adjust the uncertainty in our measurements when there are extreme movements of the phone, but not the car (e.g. when someone picks up the phone). In order to do this, we can adjust the uncertainty in our measurements in a non-linear way, meaning that the higher a measurement is, the more uncertain it becomes, favouring the model and process over that of measurements. For gyroscope measurements, this can be a simple non-linear function such as:
+Now, because we're trying to account for smartphones and their sensors being loose within a car in order to estimate the state of the car itself, we have to adjust the uncertainty in our measurements when there are extreme movements of the phone, but not the car (e.g. when someone picks up the phone). In order to do this, we can adjust the uncertainty in our measurements in a non-linear way, meaning that the higher a measurement is, the more uncertain it becomes, favouring the model and process over that of measurements. For gyroscope measurements, this can be a simple non-linear function such as:
 
 ```math
 \sigma^2_\mathrm{gyro} = \kappa_\mathrm{gyro}(1 + \epsilon_\mathrm{gyro}\omega^2_\mathrm{gyro})
@@ -382,35 +382,35 @@ Now, similar to angular velocity, we have for the uncertainty in the acceleromet
 \sigma^2_\mathrm{accel} = \kappa_\mathrm{accel}(1 + \epsilon_\mathrm{accel}a^2_\mathrm{accel})
 ```
 
-Where kappa and epsilon are very similar to what we have for angular velocity. Also similar to angular velocity, accelerometer readings are typically close to zero as the acceleration and deceleration of a car only happen near intersections, though with smaller fluctuations for lane changes and adjusting to traffic conditions. Also, accelerometer readings while the sensors are placed in a car that’s driving are not stationary. That is, the properties of the noise (its variance) change depending on the speed of the car. Higher speeds correlate to higher noise, which makes intuitive sense since sensor noise comes in the form as bumps in the road whose severity depends on how fast you’re going. It also depends on how fast things are rotating within the car, i.e. RPMs. However, since extreme acceleration events for a car that is driving happen at a threshold of 2.4 m/s2, anything above, say, 3 m/s2, can be safely ignored. This means that acceleration readings due to someone dropping the phone or picking it up, which can reach up to 20 m/s2, are relatively easy to spot and filter out by increasing the uncertainty quadratically.
+Where kappa and epsilon are very similar to what we have for angular velocity. Also similar to angular velocity, accelerometer readings are typically close to zero as the acceleration and deceleration of a car only happen near intersections, though with smaller fluctuations for lane changes and adjusting to traffic conditions. Also, accelerometer readings while the sensors are placed in a car that's driving are not stationary. That is, the properties of the noise (its variance) change depending on the speed of the car. Higher speeds correlate to higher noise, which makes intuitive sense since sensor noise comes in the form as bumps in the road whose severity depends on how fast you're going. It also depends on how fast things are rotating within the car, i.e. RPMs. However, since extreme acceleration events for a car that is driving happen at a threshold of 2.4 m/s2, anything above, say, 3 m/s2, can be safely ignored. This means that acceleration readings due to someone dropping the phone or picking it up, which can reach up to 20 m/s2, are relatively easy to spot and filter out by increasing the uncertainty quadratically.
 
-Now, because we’re using 3D acceleration, velocity and angular velocity vectors, but can only use scalar speed measurements to correct for velocity, we have to make sure that the acceleration at the very least accurately gets the velocity vector point in the right direction when accelerating from rest. After that, we can keep the velocity vector clamped in place using scalar speed measurements from the GPS. Then, since angular velocity measurements are relatively decent (except when someone picks up the phone), we know that we can get decent centripetal acceleration estimates. To this end, we want to keep the uncertainty in acceleration low relative to speed measurements at low speeds (e.g. as we have above), but want to make sure that the more accurate speed measurements are much less uncertain as speed increases.
+Now, because we're using 3D acceleration, velocity and angular velocity vectors, but can only use scalar speed measurements to correct for velocity, we have to make sure that the acceleration at the very least accurately gets the velocity vector point in the right direction when accelerating from rest. After that, we can keep the velocity vector clamped in place using scalar speed measurements from the GPS. Then, since angular velocity measurements are relatively decent (except when someone picks up the phone), we know that we can get decent centripetal acceleration estimates. To this end, we want to keep the uncertainty in acceleration low relative to speed measurements at low speeds (e.g. as we have above), but want to make sure that the more accurate speed measurements are much less uncertain as speed increases.
 
-However, since speed measurements come in less frequently than acceleration measurements, if you want usable acceleration estimates, you have to make sure that at low speeds, acceleration and speed measurements are more or less equally uncertain, with only speed becomes less uncertain as speed increases. If speed is significantly more uncertain than acceleration, then the acceleration estimates will be more or less useless; however, the measurements can still be useful to help inform accurate velocity estimates. Again, since GPS measurements are by far the most accurate, if you favour them above all else, then you’ll find that the magnitude of your velocity vector will end up matching your GPS measurements very closely.
+However, since speed measurements come in less frequently than acceleration measurements, if you want usable acceleration estimates, you have to make sure that at low speeds, acceleration and speed measurements are more or less equally uncertain, with only speed becomes less uncertain as speed increases. If speed is significantly more uncertain than acceleration, then the acceleration estimates will be more or less useless; however, the measurements can still be useful to help inform accurate velocity estimates. Again, since GPS measurements are by far the most accurate, if you favour them above all else, then you'll find that the magnitude of your velocity vector will end up matching your GPS measurements very closely.
 
-This means that if you want useful acceleration measurements, then you can set the accelerometer kappa to be equal to the GPS kappa, but if you don’t care about acceleration measurements, then you can set the accelerometer kappa to be one hundred times greater.
+This means that if you want useful acceleration measurements, then you can set the accelerometer kappa to be equal to the GPS kappa, but if you don't care about acceleration measurements, then you can set the accelerometer kappa to be one hundred times greater.
 
 ## Implementation Considerations
 
-Theoretically it’s possible to control how often you receive data from smartphone sensors, e.g. ten times a second; however, in practice that’s rarely true. Furthermore, different sensors have different upper limits to how fast they can send readings to the operating system of your mobile phone. For example, while some smartphone accelerometers can send accelerometer readings to the operating system one hundred times a second, GPS is strictly limited to updating data no more than once per second. Also, because different sensors have their own clocks, with slight errors compared to one another or the system clock, it can be hard to determine exactly when a measurement is sent to the operating system.
+Theoretically it's possible to control how often you receive data from smartphone sensors, e.g. ten times a second; however, in practice that's rarely true. Furthermore, different sensors have different upper limits to how fast they can send readings to the operating system of your mobile phone. For example, while some smartphone accelerometers can send accelerometer readings to the operating system one hundred times a second, GPS is strictly limited to updating data no more than once per second. Also, because different sensors have their own clocks, with slight errors compared to one another or the system clock, it can be hard to determine exactly when a measurement is sent to the operating system.
 
-Reading through the literature, most filtering for telematics seems to assume that measurements all come in at the same time, so that every time you update your state estimates, you don’t have to think about the above complications. However, since this isn’t the case in real life, we investigated a few possible ways to address things:
+Reading through the literature, most filtering for telematics seems to assume that measurements all come in at the same time, so that every time you update your state estimates, you don't have to think about the above complications. However, since this isn't the case in real life, we investigated a few possible ways to address things:
 
 1. **Fixed Rate Filtering**: filtering at regular time intervals using the most recent measurements,
 2. **Loose Filtering**: accumulating high frequency measurements while waiting for your slowest measurement to arrive,
 3. **Sequential Filtering**: updating your state estimate every time a measurement arrives.
 
-None of these are really discussed in the literature, though fixed rate (with simultaneous measurements) seems to be the approach that’s typically assumed. I have come across loose and sequential filtering in the wild via open-source implementations that are public on GitHub, but I don’t really consider sequential filtering to be sensor fusion, as it really just implements a separate filter for each measurement, meaning it’s just a least squares estimator.
+None of these are really discussed in the literature, though fixed rate (with simultaneous measurements) seems to be the approach that's typically assumed. I have come across loose and sequential filtering in the wild via open-source implementations that are public on GitHub, but I don't really consider sequential filtering to be sensor fusion, as it really just implements a separate filter for each measurement, meaning it's just a least squares estimator.
 
 Before we discuss each in kind, please note that there are no hard rules on any of this, feel free to mix and match based on your requirements. Personally, loose filtering at a fixed rate makes a lot of sense, but when using slow GPS measurements with strict data transfer constraints, loose filtering with a GPS measurement triggering a state update, is the way to go.
 
 ### Fixed Rate Filtering
 
-Fixed rate filtering is probably the default way that people think about using sensor data. That is, once every so often, at a fixed interval, data from multiple sensors arrives all at the same time, and can more or less be processed instantly (or near enough). Complications arise, however, when you realize that this is not quite so. For most smartphones, it’s not about polling sensors for their current reading, it’s about registering events with the operating system, to be fired at a specified rate, or after a certain amount of time has passed. It gets complicated, because these things aren’t exact, and when you have more than one sensor, they generally do not align in time. Moreover, depending on the system you’re working with (phone, OS, sensors, etc.), you might not have any control over sensor event / interrupt rates, so you have to work with what you get.
+Fixed rate filtering is probably the default way that people think about using sensor data. That is, once every so often, at a fixed interval, data from multiple sensors arrives all at the same time, and can more or less be processed instantly (or near enough). Complications arise, however, when you realize that this is not quite so. For most smartphones, it's not about polling sensors for their current reading, it's about registering events with the operating system, to be fired at a specified rate, or after a certain amount of time has passed. It gets complicated, because these things aren't exact, and when you have more than one sensor, they generally do not align in time. Moreover, depending on the system you're working with (phone, OS, sensors, etc.), you might not have any control over sensor event / interrupt rates, so you have to work with what you get.
 
 How then, can we simulate fixed rate filtering in real-life?
 
-Simple: maintain a series of relatively up-to-date readings that can be used at a fixed rate. That is, every time a sensor event occurs, you update whatever variable you’re using to keep track of that sensor value. If you get events from the sensors fast enough, and filter at a rate slightly slower than that, that’s almost as good as if all of your sensor events were to arrive at the same time.
+Simple: maintain a series of relatively up-to-date readings that can be used at a fixed rate. That is, every time a sensor event occurs, you update whatever variable you're using to keep track of that sensor value. If you get events from the sensors fast enough, and filter at a rate slightly slower than that, that's almost as good as if all of your sensor events were to arrive at the same time.
 
 Pseudocode for this approach could look something like this:
 
@@ -434,15 +434,15 @@ Pseudocode for this approach could look something like this:
  - Timer:
    - new state estimate = kalman_filter (old state, measurements)
 
-For the most part, this type of approach is what I’ve used, but when using slow sensors like GPS, errors can accumulate in between measurements (assuming you’re filtering faster than GPS readings come in) such that it might be worthwhile looking into other ways to go about things.
+For the most part, this type of approach is what I've used, but when using slow sensors like GPS, errors can accumulate in between measurements (assuming you're filtering faster than GPS readings come in) such that it might be worthwhile looking into other ways to go about things.
 
 ### Loose Filtering
 
 Loose filtering is something I stumbled upon when auditing open-source projects, and it might help fit filtering implementations into a stricter set of constraints. The gist of it is that if you are filtering at a slow fixed rate, or at the rate of your slowest sensor (e.g. GPS), you might lose critical information if you just discard measurements that come in from faster sensors. So, in between filter events you accumulate and average values from your faster sensors, using the result when you do eventually get around to filtering. This also allows you to perform some real-time filtering on the data that otherwise would not be possible at a lower rate.
 
-For example, if you’re measuring speed 25 times a second, but distance only once a second and then filtering only once a second, you would accumulate the 25 speed measurements, averaging them out over the course of a second, and then say, “that’s the total speed measurement for the previous second,” that you can then hand off to your filter.
+For example, if you're measuring speed 25 times a second, but distance only once a second and then filtering only once a second, you would accumulate the 25 speed measurements, averaging them out over the course of a second, and then say, “that's the total speed measurement for the previous second,” that you can then hand off to your filter.
 
-This is useful if you need real sensor data for post-processing, but can’t afford to transmit sensor data 25 times a second. You can still get useful information from your sensors at a slow rate, and still get decent state estimates from your filters, but you won’t use up as much space or need to transfer as much data.
+This is useful if you need real sensor data for post-processing, but can't afford to transmit sensor data 25 times a second. You can still get useful information from your sensors at a slow rate, and still get decent state estimates from your filters, but you won't use up as much space or need to transfer as much data.
 
 Pseudocode for this approach could look like:
 
@@ -465,7 +465,7 @@ Pseudocode for this approach could look like:
 This is a great approach and you can get good estimates while operating with other data / storage constraints, though it will ultimately result in lower resolution estimates. Also, if your filter rate is too slow, your averages can come to something completely wacky, like zero, when in reality your state has done something interesting like turn around.
 
 ### Sequential Filtering
-Don’t use sequential filtering. I also came across this while auditing open-source projects, primarily in the autonomous vehicle space. Basically, you don’t do sensor fusion: you just use a Kalman filter as a least squares filter to kinda smooth out your data as it comes in. That is, for every discrete sensor event, you build a separate filter that only takes that event as input, estimating the same thing. I don’t get it, but I see it all over the place.
+Don't use sequential filtering. I also came across this while auditing open-source projects, primarily in the autonomous vehicle space. Basically, you don't do sensor fusion: you just use a Kalman filter as a least squares filter to kinda smooth out your data as it comes in. That is, for every discrete sensor event, you build a separate filter that only takes that event as input, estimating the same thing. I don't get it, but I see it all over the place.
 
 Pseudocode is very boring:
 
